@@ -59,6 +59,14 @@ function check_product()
         echo "Couldn't locate the top of the tree.  Try setting TOP." >&2
         return
     fi
+
+    if (echo -n $1 | grep -q -e "^rootbox_") ; then
+       RB_PRODUCT=$(echo -n $1 | sed -e 's/^rootbox_//g')
+    else
+       RB_PRODUCT=
+    fi
+      export RB_PRODUCT
+
     CALLED_FROM_SETUP=true BUILD_SYSTEM=build/core \
         TARGET_PRODUCT=$1 \
         TARGET_BUILD_VARIANT= \
