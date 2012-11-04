@@ -1288,7 +1288,7 @@ ifneq ($(TARGET_CUSTOM_RELEASETOOL),)
 	@echo -e ${CL_MAG}"Running releasetool"${CL_RST}
 	$(hide) $(TARGET_CUSTOM_RELEASETOOL)
 else
-	$(hide) ./vendor/aokp/tools/squisher
+	$(hide) ./vendor/rootbox/tools/squisher
 endif
 
 # -----------------------------------------------------------------
