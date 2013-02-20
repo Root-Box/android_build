@@ -448,7 +448,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.Print("*Flashing Kernel*")
   script.WriteRawImage("/boot", "boot.img")
 
-  script.Print("*RootBox Installed - Now Flash Latest 4.2.1 GAPPS*")
+  script.Print("*RootBox Installed - Now Flash Latest GAPPS*")
   script.ShowProgress(0.1, 0)
   device_specific.FullOTA_InstallEnd()
 
