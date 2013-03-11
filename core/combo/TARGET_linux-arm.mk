@@ -93,7 +93,6 @@ ifeq ($(ARCH_ARM_HAVE_THUMB_SUPPORT),true)
                             -funsafe-math-optimizations \
                             -fstrict-aliasing \
                             -Wstrict-aliasing=2 \
-                            -Werror=strict-aliasing
     endif
 else
     TARGET_thumb_CFLAGS := $(TARGET_arm_CFLAGS)
