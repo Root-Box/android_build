@@ -431,6 +431,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.Print("* o888bood8P'  `Y8bod8P' o88'   888o      *")
   script.Print("*******************************************") 
 
+
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
 
@@ -454,15 +455,39 @@ def WriteFullOTAPackage(input_zip, output_zip):
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
   script.ShowProgress(0.2, 0)
 
+  script.Print("")
+  script.Print("")
+  script.Print("*******************************************")
+  script.Print("*                                         *")
+  script.Print("*                                         *")
+  script.Print("*           RUNNING BACKUP TOOL           *")
+  script.Print("*                                         *")
+  script.Print("*                                         *")
+  script.Print("*******************************************")
   if OPTIONS.backuptool:
     script.ShowProgress(0.2, 10)
     script.RunBackup("restore")
 
   script.ShowProgress(0.2, 10)
-  script.Print("*Flashing Kernel*")
+  script.Print("")
+  script.Print("")
+  script.Print("*******************************************")
+  script.Print("*                                         *")
+  script.Print("*                                         *")
+  script.Print("*             FLASHING KERNEL             *")
+  script.Print("*                                         *")
+  script.Print("*                                         *")
+  script.Print("*******************************************")
   script.WriteRawImage("/boot", "boot.img")
-
-  script.Print("*RootBox Installed - Now Flash Latest GAPPS*")
+  script.Print("")
+  script.Print("")
+  script.Print("*******************************************")
+  script.Print("*                                         *")
+  script.Print("*                                         *")
+  script.Print("*            ROOTBOX INSTALLED            *")
+  script.Print("*                                         *")
+  script.Print("*                                         *")
+  script.Print("*******************************************")
   script.ShowProgress(0.1, 0)
   device_specific.FullOTA_InstallEnd()
 
