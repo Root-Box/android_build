@@ -1588,7 +1588,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	   $(if $(OEM_OTA_CONFIG), -o $(OEM_OTA_CONFIG)) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
 
-AOKP_TARGET_PACKAGE := $(PRODUCT_OUT)/$(AOKP_VERSION).zip
+RB_TARGET_PACKAGE := $(PRODUCT_OUT)/$(RB_VERSION).zip
 
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
@@ -1596,21 +1596,25 @@ bacon: otapackage
 ifneq ($(TARGET_CUSTOM_RELEASETOOL),)
 	$(error TARGET_CUSTOM_RELEASETOOL is deprecated)
 endif
-	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(AOKP_TARGET_PACKAGE)
-	$(hide) $(MD5SUM) $(AOKP_TARGET_PACKAGE) > $(AOKP_TARGET_PACKAGE).md5sum
+	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(RB_TARGET_PACKAGE)
+	$(hide) $(MD5SUM) $(RB_TARGET_PACKAGE) > $(RB_TARGET_PACKAGE).md5sum
 	@echo -e ""
-	@echo -e ${CL_RED}"    ______"${CL_MAG}"  _____"${CL_CYN}"   __  __"${CL_BLU}"   _____"${CL_RST}
-	@echo -e ${CL_RED}"   /\\\\  _  \\\\"${CL_MAG}"/\\\\  __\`\\\\"${CL_CYN}"/\\\\ \\\\/\\\\ \\\\"${CL_BLU}" /\\\\  _ \`\\\\"${CL_RST}
-	@echo -e ${CL_RED}"   \\\\ \\\\ \\\\L\\\\ \\\\"${CL_MAG}" \\\\ \\\\/\\\\ \\\\"${CL_CYN}" \\\\ \\\\/'/'"${CL_BLU}"\\\\ \\\\ \\\\L\\\\ \\\\"${CL_RST}
-	@echo -e ${CL_RED}"    \\\\ \\\\  __ \\\\"${CL_MAG}" \\\\ \\\\ \\\\ \\\\"${CL_CYN}" \\\\ , <"${CL_BLU}"  \\\\ \\\\ ,__/"${CL_RST}
-	@echo -e ${CL_RED}"     \\\\ \\\\ \\\\/\\\\ \\\\"${CL_MAG}" \\\\ \\\\_\\\\ \\\\"${CL_CYN}" \\\\ \\\\\\\\\`\\\\"${CL_BLU}" \\\\ \\\\ \\\\/"${CL_RST}
-	@echo -e ${CL_RED}"      \\\\ \\\\_\\\\ \\\\_\\\\"${CL_MAG}" \\\\_____\\\\"${CL_CYN}" \\\\_\\\\ \\\\_\\\\"${CL_BLU}"\\\\ \\\\_\\\\"${CL_RST}
-	@echo -e ${CL_RED}"       \\\\/_/\\\\/_/"${CL_MAG}"\\\\/_____/"${CL_CYN}"\\\\/_/\\\\/_/"${CL_BLU}" \\\\/_/"${CL_RST}
+        @echo -e "${cya}Building ${bldcya}Vanilla RootBox Nightly-$VERSION ${txtrst}";
+	@echo -e ""
+	@echo -e ""
+	@echo -e  ${bldblue}"  ____                    __    ____"                    
+	@echo -e  " /\  _'\                 /\ \__/\  _'\ "
+	@echo -e  " \ \ \L\ \    ___     ___\ \ ,_\ \ \L\ \    ___   __  _"
+	@echo -e  "  \ \ ,  /   / __'\  / __'\ \ \/\ \  _ <   / __ \/\ \/'\ "
+	@echo -e  "   \ \ \ \ \/\ \L\ \/\ \L\ \ \ \_\ \ \L\ \/\ \L\ \/>  </"
+	@echo -e  "    \ \_\ \_\ \____/\ \____/\ \_\ \ \____/\ \____//\_/\_\ "
+	@echo -e  "     \/_/\/ /\/___/  \/___/  \/__/ \/___/  \/___/ \//\/_/ "
+	@echo -e
 	@echo -e ""
 	@echo -e ${CL_CYN}"===========-Package complete-==========="${CL_RST}
-	@echo -e ${CL_CYN}"zip: "${CL_MAG} $(AOKP_TARGET_PACKAGE)${CL_RST}
-	@echo -e ${CL_CYN}"md5: "${CL_MAG}" `cat $(AOKP_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
-	@echo -e ${CL_CYN}"size:"${CL_MAG}" `ls -lah $(AOKP_TARGET_PACKAGE) | cut -d ' ' -f 5`"${CL_RST}
+	@echo -e ${CL_CYN}"zip: "${CL_MAG} $(RB_TARGET_PACKAGE)${CL_RST}
+	@echo -e ${CL_CYN}"md5: "${CL_MAG}" `cat $(RB_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
+	@echo -e ${CL_CYN}"size:"${CL_MAG}" `ls -lah $(RB_TARGET_PACKAGE) | cut -d ' ' -f 5`"${CL_RST}
 	@echo -e ${CL_CYN}"========================================"${CL_RST}
 	@echo -e ""
 
