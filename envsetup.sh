@@ -23,15 +23,11 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - cmgerrit: A Git wrapper that fetches/pushes patch from/to CM Gerrit Review
 - cmrebase: Rebase a Gerrit change and push it again
 - mka:      Builds using SCHED_BATCH on all processors
-- pspush:   push commit to AOKP gerrit instance.
 - reposync: Parallel repo sync using ionice and SCHED_BATCH
 - installboot: Installs a boot.img to the connected device.
 - installrecovery: Installs a recovery.img to the connected device.
 - sdkgen:   Create and add a custom sdk platform to your sdk directory from this source tree
 - pyrrit:   Helper subprogram to interact with AOKP gerrit
-- mbot:     Builds for all devices using the psuedo buildbot
-- taco:     Builds for a single device using the pseudo buildbot
-- addaokp:  Add git remote for the AOKP gerrit repository
 
 Look at the source to view more functions. The complete list is:
 EOF
@@ -77,12 +73,12 @@ function check_product()
         return
     fi
 
-    if (echo -n $1 | grep -q -e "^aokp_") ; then
-       AOKP_DEVICE=$(echo -n $1 | sed -e 's/^aokp_//g')
+    if (echo -n $1 | grep -q -e "^rb_") ; then
+       RB_DEVICE=$(echo -n $1 | sed -e 's/^rb_//g')
     else
-       AOKP_DEVICE=
+       RB_DEVICE=
     fi
-    export AOKP_DEVICE
+    export RB_DEVICE
 
         TARGET_PRODUCT=$1 \
         TARGET_BUILD_VARIANT= \
@@ -497,7 +493,7 @@ function print_lunch_menu()
        echo "  (ohai, koush!)"
     fi
     echo
-    if [ "z${AOKP_DEVICES_ONLY}" != "z" ]; then
+    if [ "z${RB_DEVICES_ONLY}" != "z" ]; then
        echo "Breakfast menu... pick a combo:"
     else
        echo "Lunch menu... pick a combo:"
@@ -511,7 +507,7 @@ function print_lunch_menu()
         i=$(($i+1))
     done | column
 
-    if [ "z${AOKP_DEVICES_ONLY}" != "z" ]; then
+    if [ "z${RB_DEVICES_ONLY}" != "z" ]; then
        echo "... and don't forget the bacon!"
     fi
 
@@ -534,10 +530,10 @@ function breakfast()
 {
     target=$1
     local variant=$2
-    AOKP_DEVICES_ONLY="true"
+    RB_DEVICES_ONLY="true"
     unset LUNCH_MENU_CHOICES
     add_lunch_combo full-eng
-    for f in `/bin/ls vendor/aokp/vendorsetup.sh 2> /dev/null`
+    for f in `/bin/ls vendor/rootbox/vendorsetup.sh 2> /dev/null`
         do
             echo "including $f"
             . $f
@@ -553,11 +549,11 @@ function breakfast()
             # A buildtype was specified, assume a full device name
             lunch $target
         else
-            # This is probably just the AOKP model name
+            # This is probably just the RootBox model name
             if [ -z "$variant" ]; then
                 variant="userdebug"
             fi
-            lunch aokp_$target-$variant
+            lunch rb_$target-$variant
         fi
     fi
     return $?
@@ -573,7 +569,7 @@ function lunch()
         answer=$1
     else
         print_lunch_menu
-        echo -n "Which would you like? [aokp_shamu-userdebug] "
+        echo -n "Which would you like? [rb_find7-userdebug] "
         read answer
     fi
 
@@ -581,7 +577,7 @@ function lunch()
 
     if [ -z "$answer" ]
     then
-        selection=aokp_shamu-userdebug
+        selection=rb_find7-userdebug
     elif (echo -n $answer | grep -q -e "^[0-9][0-9]*$")
     then
         if [ $answer -le ${#LUNCH_MENU_CHOICES[@]} ]
@@ -698,8 +694,8 @@ function tapas()
 function eat()
 {
     if [ "$OUT" ] ; then
-        MODVERSION=`sed -n -e'/ro\.aokp\.version/s/.*=//p' $OUT/system/build.prop`
-        ZIPFILE=aokp-$MODVERSION.zip
+        MODVERSION=`sed -n -e'/ro\.rb\.version/s/.*=//p' $OUT/system/build.prop`
+        ZIPFILE=rootbox-$MODVERSION.zip
         ZIPPATH=$OUT/$ZIPFILE
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
@@ -1546,110 +1542,6 @@ function godir () {
     \cd $T/$pathname
 }
 
-function mbot() {
-    unset LUNCH_MENU_CHOICES
-    croot
-    ./vendor/aokp/bot/deploy.sh
-}
-
-function  pspush_host() {
-    echo ""
-    echo "Host aokp_gerrit"
-    echo "  Hostname gerrit.aokp.co"
-    echo "  Port 29418"
-    echo "  User $1"
-
-}
-
-function pspush_error() {
-    echo "pspush requires ~/.ssh/config setup containing the following info:"
-    pspush_host "[sshusername]"
-}
-
-function pspush_host_create() {
-    echo "Please enter sshusername registered with gerrit.aokp.co."
-    read sshusername
-    pspush_host $sshusername  >> ~/.ssh/config
-}
-
-function pspush() {
-    local project
-    project=`git config --get remote.aokp.projectname`
-    revision=`repo info . | grep "Current revision" | awk {'print $3'} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g"`
-    if [ -z "$1" ] || [ "$1" = '--help' ]; then
-        echo "pspush"
-        echo "to use:  pspush \$destination"
-        echo "where \$destination: for=review; drafts=draft; heads=push through review to github (you probably can't)."
-        echo "example: 'pspush for'"
-        echo "will execute 'git push ssh://\$sshusername@gerrit.aokp.co:29418/$project HEAD:refs/[for][drafts][heads]/$revision'"
-    else
-        check_ssh_config="`grep -A 1 'gerrit$' ~/.ssh/config`"
-        check_ssh_config_2=`echo "$check_ssh_config" | while read line; do grep gerrit.aokp.co; done`
-        if [ -n "$check_ssh_config" ]; then
-            if [ -n "$check_ssh_config_2" ]; then
-                git push aokp_gerrit:$project HEAD:refs/$1/$revision
-            fi
-        elif [ -z "$check_ssh_config_2" ]; then
-            echo "Host entry doesn't exist, create now? (pick 1 or 2)"
-            select yn in "Yes" "No"; do
-                case $yn in
-                    Yes ) pspush_host_create
-                          echo "host entry created, please run again to push"
-                          break;;
-                    No ) pspush_error; break;;
-                esac
-            done
-        else
-            pspush_error
-        fi
-    fi
-}
-
-function taco() {
-    for sauce in "$@"
-    do
-        breakfast $sauce
-        if [ $? -eq 0 ]; then
-            croot
-            ./vendor/aokp/bot/build_device.sh aokp_$sauce-userdebug $sauce
-        else
-            echo "No such item in brunch menu. Try 'breakfast'"
-        fi
-    done
-}
-
-function addaokp() {
-    git remote rm gerrit 2> /dev/null
-    if [ ! -d .git ]
-    then
-        echo "Not a git repository."
-        exit -1
-    fi
-    REPO=$(cat .git/config  | grep git://github.com/AOKP/ | awk '{ print $NF }' | sed s#git://github.com/##g)
-    if [ -z "$REPO" ]
-    then
-        REPO=$(cat .git/config  | grep https://github.com/AOKP/ | awk '{ print $NF }' | sed s#https://github.com/##g)
-        if [ -z "$REPO" ]
-        then
-          echo Unable to set up the git remote, are you in the root of the repo?
-          return 0
-        fi
-    fi
-    AOKPUSER=`git config --get review.gerrit.aokp.co.username`
-    if [ -z "$AOKPUSER" ]
-    then
-        git remote add gerrit ssh://gerrit.aokp.co:29418/$REPO
-    else
-        git remote add gerrit ssh://$AOKPUSER@gerrit.aokp.co:29418/$REPO
-    fi
-    if ( git remote -v | grep -qv gerrit ) then
-        echo "AOKP gerrit $REPO remote created"
-    else
-        echo "Error creating remote"
-        exit -1
-    fi
-}
-
 function cmremote()
 {
     git remote rm cmremote 2> /dev/null
@@ -2096,18 +1988,10 @@ function mka() {
 function reposync() {
     case `uname -s` in
         Darwin)
-            if [[ $AOKP_REPOSYNC_QUIET = true ]]; then
-                repo sync -j 4 "$@" | awk '!/Fetching\ project\ /'
-            else
-                repo sync -j 4 "$@"
-            fi
+            repo sync -j 4 "$@"
             ;;
         *)
-            if [[ $AOKP_REPOSYNC_QUIET = true ]]; then
-                schedtool -B -n 1 -e ionice -n 1 `which repo` sync -j 4 "$@" | awk '!/Fetching\ project\ /'
-            else
-                schedtool -B -n 1 -e ionice -n 1 `which repo` sync -j 4 "$@"
-            fi
+            schedtool -B -n 1 -e ionice -n 1 `which repo` sync -j 4 "$@"
             ;;
     esac
 }
@@ -2362,8 +2246,8 @@ if [ "x$SHELL" != "x/bin/bash" ]; then
     esac
 fi
 
-echo "including vendor/aokp/vendorsetup.sh"
-. vendor/aokp/vendorsetup.sh
+echo "including vendor/rootbox/vendorsetup.sh"
+. vendor/rootbox/vendorsetup.sh
 
 addcompletions
 
