@@ -533,7 +533,7 @@ function breakfast()
     RB_DEVICES_ONLY="true"
     unset LUNCH_MENU_CHOICES
     add_lunch_combo full-eng
-    for f in `/bin/ls vendor/rootbox/vendorsetup.sh 2> /dev/null`
+    for f in `/bin/ls vendor/rb/vendorsetup.sh 2> /dev/null`
         do
             echo "including $f"
             . $f
@@ -695,7 +695,7 @@ function eat()
 {
     if [ "$OUT" ] ; then
         MODVERSION=`sed -n -e'/ro\.rb\.version/s/.*=//p' $OUT/system/build.prop`
-        ZIPFILE=rootbox-$MODVERSION.zip
+        ZIPFILE=rb-$MODVERSION.zip
         ZIPPATH=$OUT/$ZIPFILE
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
@@ -2246,8 +2246,8 @@ if [ "x$SHELL" != "x/bin/bash" ]; then
     esac
 fi
 
-echo "including vendor/rootbox/vendorsetup.sh"
-. vendor/rootbox/vendorsetup.sh
+echo "including vendor/rb/vendorsetup.sh"
+. vendor/rb/vendorsetup.sh
 
 addcompletions
 
